@@ -15,7 +15,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                 theme={lightTheme({
                     accentColor: "#7b3fe4",
                     accentColorForeground: "white",
-                    borderRadius: "large",
+                    borderRadius: "medium",
                     fontStack: "system",
                     overlayBlur: "small",
                 })}

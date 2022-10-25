@@ -1,7 +1,7 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Link from "next/link";
 
-export const Header = () => {
+const Header = () => {
     return (
         <div className="navbar bg-base-100">
             <div className="flex-1">
@@ -15,3 +15,5 @@ export const Header = () => {
         </div>
     );
 };
+
+export default Header;
