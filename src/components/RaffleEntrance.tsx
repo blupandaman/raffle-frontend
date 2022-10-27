@@ -1,4 +1,4 @@
-import { ContractInterface } from "ethers";
+import { BigNumber, ContractInterface, ethers } from "ethers";
 import { useEffect, useState } from "react";
 import {
     chain,
@@ -18,32 +18,43 @@ const RaffleEntrance = () => {
     const addresses: contractAddressesInterface = contractAddresses;
     const chainId = chain.hardhat.id;
     const raffleAddress = chainId in addresses ? addresses[chainId][0] : null;
-    const [entranceFee, setEntranceFee] = useState(0);
+    const [entranceFee, setEntranceFee] = useState("0");
+
+    const { config } = usePrepareContractWrite({
+        addressOrName: raffleAddress!,
+        contractInterface: abi as ContractInterface,
+        functionName: "enterRaffle",
+        overrides: {
+            value: entranceFee,
+        },
+        chainId: chainId,
+    });
 
     const {
         data: entranceFeeData,
         isError,
         isLoading,
     } = useContractRead({
-        addressOrName: raffleAddress!,
-        contractInterface: abi as ContractInterface,
+        ...config,
         functionName: "getEntranceFee",
-        chainId: chainId,
     });
 
     useEffect(() => {
         if (entranceFeeData) {
-            setEntranceFee(parseInt(entranceFeeData.toString()));
+            setEntranceFee(entranceFeeData.toString());
+            console.log(entranceFee);
         }
     }, [entranceFeeData]);
 
-    return <div className="pl-6">Entrance fee: {entranceFee}</div>;
-
-    // const { config } = usePrepareContractWrite({
-    //     addressOrName: raffleAddress!,
-    //     contractInterface: abi,
-    //     functionName: "enterRaffle",
-    // });
+    return (
+        <div>
+            {raffleAddress ? (
+                <div>Entrance fee: {ethers.utils.formatEther(entranceFee)} ETH</div>
+            ) : (
+                <div>No Raffle address detected</div>
+            )}
+        </div>
+    );
 };
 
 export default RaffleEntrance;
