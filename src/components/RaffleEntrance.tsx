@@ -6,6 +6,7 @@ import {
     useContractRead,
     useContractWrite,
     usePrepareContractWrite,
+    useWaitForTransaction,
 } from "wagmi";
 import { abi, contractAddresses } from "../constants";
 
@@ -19,41 +20,73 @@ const RaffleEntrance = () => {
     const chainId = chain.hardhat.id;
     const raffleAddress = chainId in addresses ? addresses[chainId][0] : null;
     const [entranceFee, setEntranceFee] = useState("0");
+    const [connected, setConnected] = useState(false);
 
-    const { config } = usePrepareContractWrite({
+    const contractConfig = {
         addressOrName: raffleAddress!,
         contractInterface: abi as ContractInterface,
+        chainId,
+    };
+
+    const { config: writeContractConfig } = usePrepareContractWrite({
+        ...contractConfig,
         functionName: "enterRaffle",
         overrides: {
             value: entranceFee,
         },
-        chainId: chainId,
     });
 
     const {
-        data: entranceFeeData,
-        isError,
-        isLoading,
-    } = useContractRead({
-        ...config,
+        data: enterRaffleData,
+        write: enterRaffle,
+        isLoading: isEnterRaffleLoading,
+        isSuccess: isEnterRaffleStarted,
+    } = useContractWrite(writeContractConfig);
+
+    const { isSuccess: txSuccess } = useWaitForTransaction({
+        hash: enterRaffleData?.hash,
+    });
+
+    const { data: entranceFeeData } = useContractRead({
+        ...contractConfig,
         functionName: "getEntranceFee",
     });
 
     useEffect(() => {
         if (entranceFeeData) {
             setEntranceFee(entranceFeeData.toString());
-            console.log(entranceFee);
         }
-    }, [entranceFeeData]);
+        if (isConnected) {
+            setConnected(isConnected);
+        }
+    }, [entranceFeeData, isConnected]);
 
-    return (
+    return raffleAddress ? (
         <div>
-            {raffleAddress ? (
+            {connected ? (
                 <div>Entrance fee: {ethers.utils.formatEther(entranceFee)} ETH</div>
             ) : (
-                <div>No Raffle address detected</div>
+                <div>Please connect your wallet</div>
+            )}
+            <div className="h-4"></div>
+            {!txSuccess ? (
+                <button
+                    disabled={!enterRaffle || isEnterRaffleLoading || isEnterRaffleStarted}
+                    className="btn  btn-primary"
+                    onClick={() => enterRaffle?.()}
+                >
+                    {isEnterRaffleLoading && "Waiting for approval"}
+                    {isEnterRaffleStarted && "Entering Raffle..."}
+                    {!isEnterRaffleLoading && !isEnterRaffleStarted && "Enter Raffle"}
+                </button>
+            ) : (
+                <button disabled={true} className="btn  btn-primary">
+                    Thank you for entering!
+                </button>
             )}
         </div>
+    ) : (
+        <div>No Raffle address detected</div>
     );
 };
 
