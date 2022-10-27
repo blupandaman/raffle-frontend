@@ -2,10 +2,12 @@ import { connectorsForWallets, lightTheme, RainbowKitProvider } from "@rainbow-m
 import "@rainbow-me/rainbowkit/styles.css";
 import { metaMaskWallet } from "@rainbow-me/rainbowkit/wallets";
 import type { AppProps } from "next/app";
-import { MoralisProvider } from "react-moralis";
 import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
+import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 import "../styles/globals.css";
+
+const ALCHEMY_ID = process.env.NEXT_PUBLIC_ALCHEMY_ID || undefined;
 
 function MyApp({ Component, pageProps }: AppProps) {
     return (
@@ -21,15 +23,16 @@ function MyApp({ Component, pageProps }: AppProps) {
                     overlayBlur: "small",
                 })}
             >
-                <MoralisProvider initializeOnMount={false}>
-                    <Component {...pageProps} />
-                </MoralisProvider>
+                <Component {...pageProps} />
             </RainbowKitProvider>
         </WagmiConfig>
     );
 }
 
-const { chains, provider } = configureChains([chain.goerli, chain.hardhat], [publicProvider()]);
+const { chains, provider } = configureChains(
+    [chain.goerli, chain.hardhat],
+    [alchemyProvider({ apiKey: ALCHEMY_ID }), publicProvider()]
+);
 
 const connectors = connectorsForWallets([
     {
