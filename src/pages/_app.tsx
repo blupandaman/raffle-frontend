@@ -2,6 +2,7 @@ import { connectorsForWallets, lightTheme, RainbowKitProvider } from "@rainbow-m
 import "@rainbow-me/rainbowkit/styles.css";
 import { metaMaskWallet } from "@rainbow-me/rainbowkit/wallets";
 import type { AppProps } from "next/app";
+import { MoralisProvider } from "react-moralis";
 import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
 import { publicProvider } from "wagmi/providers/public";
 import "../styles/globals.css";
@@ -20,7 +21,9 @@ function MyApp({ Component, pageProps }: AppProps) {
                     overlayBlur: "small",
                 })}
             >
-                <Component {...pageProps} />
+                <MoralisProvider initializeOnMount={false}>
+                    <Component {...pageProps} />
+                </MoralisProvider>
             </RainbowKitProvider>
         </WagmiConfig>
     );
