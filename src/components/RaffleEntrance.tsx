@@ -7,6 +7,7 @@ import {
     useContractRead,
     useContractReads,
     useContractWrite,
+    useNetwork,
     usePrepareContractWrite,
     useWaitForTransaction,
 } from "wagmi";
@@ -18,8 +19,9 @@ interface contractAddressesInterface {
 
 const RaffleEntrance = () => {
     const { isConnected } = useAccount();
+    const { chain } = useNetwork();
     const addresses: contractAddressesInterface = contractAddresses;
-    const chainId = chain.hardhat.id;
+    const [chainId, setChainId] = useState(31337);
     const raffleAddress = chainId in addresses ? addresses[chainId][0] : null;
     const [entranceFee, setEntranceFee] = useState("0");
     const [numOfPlayers, setNumOfPlayers] = useState(0);
@@ -91,11 +93,14 @@ const RaffleEntrance = () => {
     };
 
     useEffect(() => {
-        if (isConnected || txSuccess) {
+        if (isConnected) {
             setConnected(isConnected);
             updateUI();
         }
-    }, [entranceFeeData, variableReadsData, isConnected]);
+        if (chain) {
+            setChainId(chain.id);
+        }
+    }, [entranceFeeData, variableReadsData, isConnected, chain]);
 
     return raffleAddress ? (
         <div>
@@ -103,7 +108,11 @@ const RaffleEntrance = () => {
                 <>
                     <div>Entrance fee: {ethers.utils.formatEther(entranceFee)} ETH</div>
                     <div>Number of players: {numOfPlayers}</div>
-                    <div>Recent winner: {recentWinner} ETH</div>
+                    <div>
+                        {recentWinner === "0x0000000000000000000000000000000000000000"
+                            ? "No winner yet"
+                            : `Recent winner : ${recentWinner} ETH`}
+                    </div>
                 </>
             ) : (
                 <div>Please connect your wallet</div>
