@@ -1,4 +1,9 @@
-import { connectorsForWallets, lightTheme, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import {
+    connectorsForWallets,
+    darkTheme,
+    lightTheme,
+    RainbowKitProvider,
+} from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
 import { metaMaskWallet } from "@rainbow-me/rainbowkit/wallets";
 import type { AppProps } from "next/app";
@@ -15,7 +20,7 @@ function MyApp({ Component, pageProps }: AppProps) {
             <RainbowKitProvider
                 chains={chains}
                 modalSize="compact"
-                theme={lightTheme({
+                theme={darkTheme({
                     accentColor: "#7b3fe4",
                     accentColorForeground: "white",
                     borderRadius: "medium",

@@ -3,14 +3,13 @@ import Link from "next/link";
 
 const Header = () => {
     return (
-        <div className="navbar bg-base-100">
+        <div className="navbar bg-base-100 pl-6 pt-6">
             <div className="flex-1">
                 <Link href={"/"}>
-                    <a className="btn btn-ghost normal-case text-xl">Smart Contract Raffle</a>
+                    <a className="btn rounded-md shadow-md normal-case text-lg font-bold hover:scale-105">
+                        Smart Contract Raffle
+                    </a>
                 </Link>
-            </div>
-            <div className="flex-none">
-                <ConnectButton />
             </div>
         </div>
     );

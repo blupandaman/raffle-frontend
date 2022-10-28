@@ -108,11 +108,13 @@ const RaffleEntrance = () => {
             ) : (
                 <div>Please connect your wallet</div>
             )}
-            <div className="h-4"></div>
+
+            <div className="h-6"></div>
+
             {!txSuccess ? (
                 <button
                     disabled={!enterRaffle || isEnterRaffleLoading || isEnterRaffleStarted}
-                    className="btn  btn-primary"
+                    className="btn  btn-primary font-bold rounded-lg px-6 shadow-lg hover:scale-105"
                     onClick={() => enterRaffle?.()}
                 >
                     {isEnterRaffleLoading && "Waiting for approval"}
@@ -120,7 +122,7 @@ const RaffleEntrance = () => {
                     {!isEnterRaffleLoading && !isEnterRaffleStarted && "Enter Raffle"}
                 </button>
             ) : (
-                <button disabled={true} className="btn  btn-primary">
+                <button disabled={true} className="btn font-bold rounded-lg px-6 shadow-lg">
                     Thank you for entering!
                 </button>
             )}

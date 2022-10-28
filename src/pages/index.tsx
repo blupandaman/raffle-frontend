@@ -1,3 +1,4 @@
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Header from "../components/Header";
@@ -15,6 +16,8 @@ const Home: NextPage = () => {
             <Header />
 
             <main className="p-6">
+                <ConnectButton />
+                <div className="h-6"></div>
                 <RaffleEntrance />
             </main>
         </div>
