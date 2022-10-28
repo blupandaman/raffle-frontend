@@ -20,6 +20,8 @@ const RaffleEntrance = () => {
     const chainId = chain.hardhat.id;
     const raffleAddress = chainId in addresses ? addresses[chainId][0] : null;
     const [entranceFee, setEntranceFee] = useState("0");
+    const [numOfPlayers, setNumOfPlayers] = useState(0);
+    const [recentWinner, setRecentWinner] = useState("");
     const [connected, setConnected] = useState(false);
 
     const contractConfig = {
@@ -45,6 +47,8 @@ const RaffleEntrance = () => {
 
     const { isSuccess: txSuccess } = useWaitForTransaction({
         hash: enterRaffleData?.hash,
+        confirmations: 1,
+        onSettled: () => updateUI(),
     });
 
     const { data: entranceFeeData } = useContractRead({
@@ -52,19 +56,37 @@ const RaffleEntrance = () => {
         functionName: "getEntranceFee",
     });
 
+    const { data: numOfPlayersData } = useContractRead({
+        ...contractConfig,
+        functionName: "getNumOfPlayers",
+    });
+
+    const { data: recentWinnerData } = useContractRead({
+        ...contractConfig,
+        functionName: "getRecentWinner",
+    });
+
+    const updateUI = async () => {
+        if (entranceFeeData) setEntranceFee(entranceFeeData.toString());
+        if (numOfPlayersData) setNumOfPlayers(numOfPlayersData.toNumber());
+        if (recentWinnerData) setRecentWinner(recentWinnerData.toString());
+    };
+
     useEffect(() => {
-        if (entranceFeeData) {
-            setEntranceFee(entranceFeeData.toString());
-        }
-        if (isConnected) {
+        if (isConnected || txSuccess) {
             setConnected(isConnected);
+            updateUI();
         }
     }, [entranceFeeData, isConnected]);
 
     return raffleAddress ? (
         <div>
             {connected ? (
-                <div>Entrance fee: {ethers.utils.formatEther(entranceFee)} ETH</div>
+                <>
+                    <div>Entrance fee: {ethers.utils.formatEther(entranceFee)} ETH</div>
+                    <div>Number of players: {numOfPlayers}</div>
+                    <div>Recent winner: {recentWinner} ETH</div>
+                </>
             ) : (
                 <div>Please connect your wallet</div>
             )}
