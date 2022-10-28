@@ -3,7 +3,9 @@ import { useEffect, useState } from "react";
 import {
     chain,
     useAccount,
+    useContractEvent,
     useContractRead,
+    useContractReads,
     useContractWrite,
     usePrepareContractWrite,
     useWaitForTransaction,
@@ -51,25 +53,41 @@ const RaffleEntrance = () => {
         onSettled: () => updateUI(),
     });
 
+    // Constant contract read
     const { data: entranceFeeData } = useContractRead({
         ...contractConfig,
         functionName: "getEntranceFee",
     });
 
-    const { data: numOfPlayersData } = useContractRead({
-        ...contractConfig,
-        functionName: "getNumOfPlayers",
+    // Variable contract reads
+    const { data: variableReadsData, refetch: variableReadsRefetch } = useContractReads({
+        contracts: [
+            {
+                ...contractConfig,
+                functionName: "getNumOfPlayers",
+            },
+            {
+                ...contractConfig,
+                functionName: "getRecentWinner",
+            },
+        ],
     });
 
-    const { data: recentWinnerData } = useContractRead({
+    useContractEvent({
         ...contractConfig,
-        functionName: "getRecentWinner",
+        eventName: "WinnerPicked" || "RaffleEnter",
+        async listener() {
+            await updateUI();
+        },
     });
 
     const updateUI = async () => {
+        await variableReadsRefetch();
         if (entranceFeeData) setEntranceFee(entranceFeeData.toString());
-        if (numOfPlayersData) setNumOfPlayers(numOfPlayersData.toNumber());
-        if (recentWinnerData) setRecentWinner(recentWinnerData.toString());
+        if (variableReadsData) {
+            setNumOfPlayers(variableReadsData[0].toNumber());
+            setRecentWinner(variableReadsData[1].toString());
+        }
     };
 
     useEffect(() => {
@@ -77,7 +95,7 @@ const RaffleEntrance = () => {
             setConnected(isConnected);
             updateUI();
         }
-    }, [entranceFeeData, isConnected]);
+    }, [entranceFeeData, variableReadsData, isConnected]);
 
     return raffleAddress ? (
         <div>
